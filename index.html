@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>P coding game</title>
+
+</head>
+
+<style>
+    canvas {
+        border: 1px solid #d3d3d3;
+        background-color: #f1f1f1;
+    }
+</style>
+
+<body onload="startGame()">
+
+    <script>
+
+        var car;
+
+        function startGame() {
+            gameboard.start();
+            car = new component(60, 60, "car.png", 10, 300, "image");
+            obstacle = new component (70, 600, "green", 300, 0);
+        }
+
+        var gameboard = {
+            canvas: document.createElement("canvas"),
+            start: function () {
+                this.canvas.width = 1500;
+                this.canvas.height = 700;
+                this.context = this.canvas.getContext("2d");
+                document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+                this.interval = setInterval(updategameboard, 100);
+
+                window.addEventListener('keydown', function (move) {
+                    gameboard.key = move.keyCode;
+                })
+
+                 window.addEventListener('keyup', function (move) {
+                    gameboard.key = move.keyCode;
+                })
+            },
+            clear: function () {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            },
+
+            gamestop: function(){
+                clearInterval(this.interval);
+            }
+        }
+
+        function component(width, height, color, x, y, type) {
+
+            this.type = type;
+
+            if (type == "image") {
+                this.image = new Image();
+                this.image.src = color;
+            }
+
+            this.width = width;
+            this.height = height;
+            this.x = x;
+            this.y = y;
+            this.posX = 0;
+            this.posY = 0;
+
+
+            this.update = function () {
+                ctx = gameboard.context;
+
+
+                if (type == "image") {
+                    ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                }
+            }
+
+            this.newpos = function () {
+                this.x += this.posX;
+                this.y += this.posY;
+            }
+
+        this.crashWith = function(obstaclepos) {
+
+            var carleft = this.x;
+            var carright = this.x + (this.width);
+            var cartop = this.y;
+            var carbottom= this.y + (this.height);
+            var obstacleleft = obstaclepos.x;
+            var obstacleright = obstaclepos.x + (obstaclepos.width);
+            var obstacletop = obstaclepos.y;
+            var obstaclebottom = obstacle.y + (obstacle.height);
+            var crash = true;
+           
+
+            if ((carbottom < obstacletop) || (cartop > obstaclebottom) || (carright < obstacleleft) || (carleft > obstacleright)){
+                crash = false;
+            }
+         return crash;
+        
+        }
+    }
+
+        function updategameboard() {
+
+            if (car.crashWith(obstacle)) {
+            gameboard.stopgame();
+            } else {
+                gameboard.clear();
+            car.posX = 0;
+            car.posY = 0;
+            if (gameboard.key && gameboard.key == 37) { car.posY = -1; }
+            if (gameboard.key && gameboard.key == 39) { car.posY = 1; }
+             if (gameboard.key && gameboard.key == 38) { car.posX = -1; }
+            if (gameboard.key && gameboard.key == 40) { car.posX = 1; }
+            car.newpos();
+            car.update();
+            obstacle.update();
+            }
+        }
+
+    </script>
+    <button onclick="movecar()">MOVE THE CAR</button>
+
+    <p><strong>INSTRUCTIONS: You can you the "move the car" button to move the car in a adjacent while as well use keybuttons on your device without onclick on the button. Use bottons: down(move right), up(to move left), right (move up) left(move down)</strong></p>
+
+
+</body>
+
+</html>
